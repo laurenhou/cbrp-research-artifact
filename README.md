@@ -40,9 +40,9 @@ Do not replace the operating system's `/usr/bin/python3`. Ubuntu 20.04's existin
 For the downloadable archive:
 
 ```bash
-mkdir -p ~/research/cbrp-clean
-unzip ~/Downloads/cbrp-research-artifact-clean.zip -d ~/research/cbrp-clean
-cd ~/research/cbrp-clean/cbrp-research-artifact
+mkdir -p ~/research/cbrp-licensed
+unzip ~/Downloads/cbrp-research-artifact-licensed.zip -d ~/research/cbrp-licensed
+cd ~/research/cbrp-licensed/cbrp-research-artifact
 sha256sum -c SHA256SUMS
 ```
 
@@ -262,4 +262,12 @@ Generated `build/`, `.venv/`, `results/runs/` and `results/reports/` are exclude
 
 **Formal deployment:** no production network protocol, audited constant-time implementation, persistent issuer registry or production KTX parameter/commitment instantiation is provided.
 
-Source attribution is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); applicable license information is in [LICENSE-STATUS.md](LICENSE-STATUS.md).
+## Licenses
+
+This repository uses component-specific licenses, not a single repository-wide
+license. The assembled Flashproofs benchmark is GPLv3; project-specific
+Bulletproofs integration and listed shared tools are BSD-2-Clause;
+BulletProofLib keeps its original MIT license. CBRP-DL and KTX research cores
+have no additional license grant in this distribution.
+See [LICENSE](LICENSE), [the exact file scopes](LICENSE-STATUS.md), and
+[third-party notices](THIRD_PARTY_NOTICES.md).

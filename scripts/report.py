@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 You-Lin Hou
+# SPDX-License-Identifier: BSD-2-Clause
+# See LICENSES/BSD-2-Clause.txt.
 """Validate a completed run and recompute CSV summaries, or copy historical CSV tables."""
 from __future__ import annotations
 import argparse

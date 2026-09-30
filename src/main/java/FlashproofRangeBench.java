@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 You-Lin Hou
+ * SPDX-License-Identifier: GPL-3.0-only
+ *
+ * This file is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License, version 3.
+ * It is distributed WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See LICENSES/GPL-3.txt for the complete license.
+ *
+ * 2026-09-30: Project-specific Flashproofs benchmark/test integration;
+ * upstream source files and their copyright notices are retained.
+ */
 import commitment.Commiter;
 import config.BouncyKey;
 import config.Config;

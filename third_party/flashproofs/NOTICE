@@ -1,0 +1,38 @@
+Flashproofs benchmark integration notice
+Date: 2026-09-30
+
+This source distribution combines the retained Flashproofs range-proof subset
+with project-specific benchmark and regression-test integration. The combined
+Flashproofs benchmark program is conveyed under GNU GPL version 3. See the
+accompanying LICENSE-GPL.txt and the repository LICENSE-STATUS.md.
+
+Retained upstream material:
+- 19 Java source files under src/main/java/ from the recorded Flashproofs
+  source snapshot in provenance/sources.json. The only byte-level difference
+  from that snapshot is LF-normalized line endings in zkp/ZKP.java;
+  there are no source-statement changes.
+- Original License, unchanged, including MIT notices for Nan Wang and
+  Benedikt Bünz and the GPLv3-origin notice
+  for utils/RandGenerator.java from James Garrity and Sean Hall's
+  Paillier Threshold Encryption Toolbox.
+
+Project-specific additions to that program, recorded on 2026-09-30:
+- src/main/java/FlashproofRangeBench.java (repository-relative): CSV-driven
+  threshold-difference range-proof benchmarking and per-execution timing.
+- tests/java/flashproofs/FPSelfTest.java (repository-relative): positive proof
+  verification and altered-response rejection checks.
+These additions are Copyright (C) 2026 You-Lin Hou and GPL-3.0-only.
+
+Shared CSV/backend utilities and build/run scripts are provided under
+BSD-2-Clause as specified in the repository LICENSE-STATUS.md. Their
+permissive component licenses remain available independently. The assembled
+GPL program retains all applicable upstream and shared-component notices.
+
+No upstream proof equations or Java statements are changed by this license
+update. The project-specific wrapper supplies w-t from synthetic input CSVs;
+it does not implement issuer certification for the baseline. CBRP-DL and the
+KTX prototype are separate programs, not Flashproofs source dependencies.
+
+This program is supplied without warranty, including without any implied
+warranty of merchantability or fitness for a particular purpose. Recipients
+may redistribute and modify it under the terms of GNU GPL version 3.

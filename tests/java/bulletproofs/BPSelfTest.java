@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 You-Lin Hou
+ * SPDX-License-Identifier: BSD-2-Clause
+ * See LICENSES/BSD-2-Clause.txt.
+ */
 import edu.stanford.cs.crypto.efficientct.*;
 import edu.stanford.cs.crypto.efficientct.algebra.*;
 import edu.stanford.cs.crypto.efficientct.commitments.PeddersenCommitment;

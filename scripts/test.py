@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 You-Lin Hou
+# SPDX-License-Identifier: BSD-2-Clause
+# See LICENSES/BSD-2-Clause.txt.
 """Functional/regression checks. Does not establish any cryptographic security theorem."""
 from __future__ import annotations
 import argparse

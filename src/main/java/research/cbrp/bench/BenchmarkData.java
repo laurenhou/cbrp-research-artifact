@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 You-Lin Hou
+ * SPDX-License-Identifier: BSD-2-Clause
+ * See LICENSES/BSD-2-Clause.txt.
+ */
 package research.cbrp.bench;
 
 import java.io.IOException;

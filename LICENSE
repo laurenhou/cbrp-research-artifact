@@ -1,0 +1,25 @@
+CBRP Research Artifact - component licensing
+
+This source distribution contains separately licensed components. It is not
+licensed as a whole under MIT, BSD, or GPL. LICENSE-STATUS.md defines the exact
+file scopes and the license of the assembled Flashproofs benchmark program.
+
+* Flashproofs benchmark program as assembled here: GNU GPL version 3.
+  Project-specific FlashproofRangeBench.java and FPSelfTest.java are offered
+  under GPL-3.0-only. Upstream notices and component permissions are retained.
+* Project-specific Bulletproofs driver, selected tests, shared benchmark
+  utilities, build/run scripts, and listed configuration/instructions:
+  BSD-2-Clause, for the project-authored portions specified in LICENSE-STATUS.md.
+* Third-party BulletProofLib: its original MIT license.
+* CBRP-DL and KTX research implementations, their research-specific tests,
+  and reference material: no additional license grant is selected in this update.
+
+Full texts are provided in LICENSES/GPL-3.txt,
+LICENSES/BSD-2-Clause.txt, third_party/bulletprooflib/LICENSE, and
+third_party/flashproofs/License. The GPL text is also provided at the filename
+referenced by the upstream notice: third_party/flashproofs/LICENSE-GPL.txt.
+
+The reservation for unlicensed research material does not apply to the
+explicitly GPL-, BSD-, or MIT-licensed components, does not restrict their
+recipients' rights, and does not override rights available under applicable law.
+Third-party copyright notices and licenses remain with their respective works.

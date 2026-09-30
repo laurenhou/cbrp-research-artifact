@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 You-Lin Hou
+# SPDX-License-Identifier: BSD-2-Clause
+# See LICENSES/BSD-2-Clause.txt.
 """Compile isolated modules with javac --release 17; no archived application classes.
 
 Default: per-scheme Maven dependencies. Optional --dependency-dir loads locally

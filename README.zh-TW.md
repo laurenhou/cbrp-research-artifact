@@ -40,9 +40,9 @@ mvn -version
 使用下載的來源壓縮檔：
 
 ```bash
-mkdir -p ~/research/cbrp-clean
-unzip ~/Downloads/cbrp-research-artifact-clean.zip -d ~/research/cbrp-clean
-cd ~/research/cbrp-clean/cbrp-research-artifact
+mkdir -p ~/research/cbrp-licensed
+unzip ~/Downloads/cbrp-research-artifact-licensed.zip -d ~/research/cbrp-licensed
+cd ~/research/cbrp-licensed/cbrp-research-artifact
 sha256sum -c SHA256SUMS
 ```
 
@@ -262,4 +262,11 @@ cbrp-research-artifact/
 
 **能否直接部署：** 本專案未提供正式網路協議、經稽核的 constant-time 實作、持久化 issuer registry 或正式 KTX 參數／commitment。
 
-來源歸屬見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)；適用授權資訊見 [LICENSE-STATUS.md](LICENSE-STATUS.md)。
+## 授權
+
+本專案採分區授權，不使用單一全專案授權。整合後的 Flashproofs 比較程式
+採 GPLv3；專案新增的 Bulletproofs 測試程式及明列的共用工具採 BSD-2-Clause；
+BulletProofLib 保留原有 MIT 授權。CBRP-DL 與 KTX 研究核心在此版本中
+未另行授予軟體授權。
+完整範圍見 [LICENSE](LICENSE)、[各檔案的授權說明](LICENSE-STATUS.md)
+及[第三方聲明](THIRD_PARTY_NOTICES.md)。

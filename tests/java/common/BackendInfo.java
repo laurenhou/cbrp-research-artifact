@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 You-Lin Hou
+ * SPDX-License-Identifier: BSD-2-Clause
+ * See LICENSES/BSD-2-Clause.txt.
+ */
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.math.ec.ECPoint;
 public final class BackendInfo {
