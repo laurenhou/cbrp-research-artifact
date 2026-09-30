@@ -1,0 +1,3 @@
+# Repository test target, not a claim about the original thesis NumPy version.
+# The thesis does not record its NumPy version. Use Python 3.11+ here.
+numpy==2.3.5

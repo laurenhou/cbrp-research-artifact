@@ -1,0 +1,14 @@
+/build/
+/target/
+/.venv/
+/results/runs/
+/results/reports/
+__pycache__/
+*.py[cod]
+*.class
+*.jar
+*.zip
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
