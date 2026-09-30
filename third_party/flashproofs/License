@@ -1,0 +1,73 @@
+MIT License
+Copyright (c) [Nan Wang] [2025]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Acknowledgment of Third-Party Code
+This project includes portions of code that are licensed under the MIT License
+by other authors. Below are the details of the third-party contributions:
+
+[BulletProofLib]
+
+Author(s): [Benedikt Bünz]
+Original Repository or Source: [https://github.com/bbuenz/BulletProofLib]
+License: MIT License
+
+For the third-party code included in this project, the following MIT License applies:
+
+MIT License
+
+Copyright (c) 2017 Benedikt Bünz
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+[Paillier Threshold Encryption Toolbox]
+Author(s): [James Garrity, Sean Hall]
+Source: [https://labs.utdallas.edu/dspl/files/2023/07/pailliersrc.zip]
+License: GNU General Public License v3.0
+Files referencing this GPL-licensed code:
+- Java/src/main/java/utils/RandGenerator.java
+
+The portions of this project derived from the above source are governed by the
+GNU General Public License v3.0 (GPLv3). A copy of the GPLv3 license text is
+included in the accompanying file LICENSE-GPL.txt and can also be found at:
+https://www.gnu.org/licenses/gpl-3.0.en.html
+
+When redistributing this software, any portions originating from GPL-licensed
+sources remain subject to the terms of the GNU GPL v3.0.
+-------------------------------------------------------------------------------

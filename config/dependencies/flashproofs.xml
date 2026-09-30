@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <modelVersion>4.0.0</modelVersion><groupId>research.cbrp</groupId>
+ <artifactId>flashproofs-dependencies</artifactId><version>0.2.0</version><packaging>pom</packaging>
+ <!-- Dependencies only. Build/runner isolate each implementation's classpath. -->
+ <dependencies>
+  <dependency><groupId>org.bouncycastle</groupId><artifactId>bcprov-jdk15on</artifactId><version>1.56</version></dependency>
+  <dependency><groupId>com.google.guava</groupId><artifactId>guava</artifactId><version>23.0</version></dependency>
+ </dependencies>
+</project>

@@ -1,0 +1,164 @@
+--- upstream/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/EfficientInnerProductVerifier.java
++++ third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/EfficientInnerProductVerifier.java
+@@ -2,7 +2,6 @@
+ 
+ import cyclops.collections.mutable.ListX;
+ import edu.stanford.cs.crypto.efficientct.algebra.BouncyCastleECPoint;
+-import edu.stanford.cs.crypto.efficientct.algebra.C0C0Group;
+ import edu.stanford.cs.crypto.efficientct.algebra.GroupElement;
+ import edu.stanford.cs.crypto.efficientct.util.ProofUtils;
+ import edu.stanford.cs.crypto.efficientct.VerificationFailedException;
+@@ -40,7 +39,7 @@
+             previousChallenge = x;
+ 
+         }
+-        System.out.printf("chals=%s\n", challenges);
++        // System.out.printf("chals=%s\n", challenges);
+         int n = params.getGs().size();
+         BigInteger[] otherExponents = new BigInteger[n];
+ 
+@@ -75,16 +74,16 @@
+         }
+ 
+         ListX<BigInteger> challengeVector = ListX.of(otherExponents);
+-        System.out.println(challengeVector.equals(challengeVector2));
+-        System.out.println(challengeVector);
+-        System.out.println(challengeVector2);
++        // System.out.println(challengeVector.equals(challengeVector2));
++        // System.out.println(challengeVector);
++        // System.out.println(challengeVector2);
+         ListX<BigInteger> sleft = challengeVector.map(proof.getA()::multiply);
+         ListX<BigInteger> sright = challengeVector.reverse().map(proof.getB()::multiply);
+-        System.out.printf("s[0]=%s\n", challengeVector.get(0));
+-        System.out.printf("s[13]=%s\n", challengeVector.get(13));
++        // System.out.printf("s[0]=%s\n", challengeVector.get(0));
++        // System.out.printf("s[13]=%s\n", challengeVector.get(13));
+ 
+-        System.out.printf("sl[10]=%s\n", sleft.get(10));
+-        System.out.printf("sr[77]=%s\n", sright.get(77));
++        // System.out.printf("sl[10]=%s\n", sleft.get(10));
++        // System.out.printf("sr[77]=%s\n", sright.get(77));
+ 
+         BigInteger prod = proof.getA().multiply(proof.getB()).mod(q);
+         T g = params.getGs().commit(sleft);
+@@ -92,8 +91,8 @@
+         T h = params.getHs().commit(sright);
+         T cProof = g.add(h).add(params.getH().multiply(prod));
+         if (g instanceof BouncyCastleECPoint) {
+-            System.out.printf("prod_i g_i^(s_i)=%s\n", new C0C0Group().toMontgomery((BouncyCastleECPoint) g));
+-            System.out.printf(new C0C0Group().toMontgomery((BouncyCastleECPoint) g));
++            // System.out.printf("prod_i g_i^(s_i)=%s\n", new C0C0Group().toMontgomery((BouncyCastleECPoint) g));
++            // System.out.printf(new C0C0Group().toMontgomery((BouncyCastleECPoint) g));
+ 
+         }
+         equal(c, cProof, "cTotal (%s) not equal to cProof (%s)");
+--- upstream/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/InnerProductProver.java
++++ third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/InnerProductProver.java
+@@ -60,7 +60,7 @@
+         BigInteger q = gs.getGroup().groupOrder();
+ 
+         BigInteger x = ProofUtils.computeChallenge(q,previousChallenge, L, R);
+-        System.out.println("x " +x);
++        // System.out.println("x " +x);
+         BigInteger xInv = x.modInverse(q);
+         BigInteger xSquare = x.pow(2).mod(q);
+         BigInteger xInvSquare = xInv.pow(2).mod(q);
+--- upstream/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofProver.java
++++ third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofProver.java
+@@ -90,15 +90,15 @@
+         InnerProductProver<T> prover = new InnerProductProver<>();
+         InnerProductWitness innerProductWitness = new InnerProductWitness(l, r);
+         InnerProductProof<T> proof = prover.generateProof(primeBase, P, innerProductWitness,uChallenge);
+-        System.out.println("y " +y);
+-        System.out.println("z " +z);
++        // System.out.println("y " +y);
++        // System.out.println("z " +z);
+ 
+-        System.out.println("x " +x);
+-        System.out.println("u " +uChallenge);
++        // System.out.println("x " +x);
++        // System.out.println("u " +uChallenge);
+         T lhs = base.commit(t.subtract(k), tauX);
+-        System.out.println(lhs);
++        // System.out.println(lhs);
+         T rhs = new GeneratorVector<>(polyCommitment.getCommitments(),parameter.getGroup()).commit(Arrays.asList(x, x.pow(2))).add(commitment.multiply(zSquared));
+-        System.out.println(rhs);
++        // System.out.println(rhs);
+         return new RangeProof<>(a, s, new GeneratorVector<T>(polyCommitment.getCommitments(), parameter.getGroup()), tauX, mu, t, proof);
+     }
+ }
+--- upstream/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofVerifier.java
++++ third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofVerifier.java
+@@ -58,13 +58,13 @@
+         BigInteger k = ys.sum().multiply(z.subtract(zSquared)).subtract(zCubed.shiftLeft(n).subtract(zCubed));
+         T lhs = base.commit(t.subtract(k), tauX);
+         T rhs = tCommits.commit(Arrays.asList(x, x.pow(2))).add(input.multiply(zSquared));
+-        System.out.println("y " + y);
+-        System.out.println("z " + z);
++        // System.out.println("y " + y);
++        // System.out.println("z " + z);
+ 
+-        System.out.println("x " + x);
++        // System.out.println("x " + x);
+         equal(lhs, rhs, "Polynomial identity check failed, LHS: %s, RHS %s");
+         BigInteger uChallenge = ProofUtils.challengeFromints(q, x, tauX, mu, t);
+-        System.out.println("u " + uChallenge);
++        // System.out.println("u " + uChallenge);
+         T u = base.g.multiply(uChallenge);
+         GeneratorVector<T> hs = vectorBase.getHs();
+         GeneratorVector<T> gs = vectorBase.getGs();
+@@ -72,11 +72,11 @@
+         FieldVector hExp = ys.times(z).add(twoTimesZSquared);
+         T P = a.add(s.multiply(x)).add(gs.sum().multiply(z.negate())).add(hPrimes.commit(hExp)).subtract(base.h.multiply(mu)).add(u.multiply(t));
+         VectorBase<T> primeBase = new VectorBase<>(gs, hPrimes, u);
+-        // System.out.println("PVerify "+P.normalize());
+-        // System.out.println("XVerify" +x);
+-        // System.out.println("YVerify" +y);
+-        // System.out.println("ZVerify" +z);
+-        // System.out.println("uVerify" +u);
++        // // System.out.println("PVerify "+P.normalize());
++        // // System.out.println("XVerify" +x);
++        // // System.out.println("YVerify" +y);
++        // // System.out.println("ZVerify" +z);
++        // // System.out.println("uVerify" +u);
+ 
+         EfficientInnerProductVerifier<T> verifier = new EfficientInnerProductVerifier<>();
+         verifier.verify(primeBase, P, proof.getProductProof(), uChallenge);
+--- upstream/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/util/ProofUtils.java
++++ third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/util/ProofUtils.java
+@@ -26,7 +26,7 @@
+     }
+ 
+     public static <T extends GroupElement<T>> BigInteger computeChallenge(BigInteger q, T... points) {
+-        System.out.println("Computing hash");
++        // System.out.println("Computing hash");
+ 
+         MessageDigest sha = KECCACK.get();
+         for (T point : points) {
+@@ -37,14 +37,14 @@
+     }
+ 
+     public static <T extends GroupElement<T>> BigInteger computeChallenge(BigInteger q, BigInteger[] points) {
+-        System.out.println("Computing hash");
++        // System.out.println("Computing hash");
+ 
+         MessageDigest sha = KECCACK.get();
+         for (BigInteger point : points) {
+             hashUInt(sha, point);
+-            System.out.println(point.toString(16));
++            // System.out.println(point.toString(16));
+         }
+-        System.out.println("Done");
++        // System.out.println("Done");
+         byte[] hash = sha.digest();
+         return toInt(hash, q);
+     }
+@@ -141,7 +141,7 @@
+      */
+     public static void setRNG(Random rng) {
+         if (!SecureRandom.class.isAssignableFrom(rng.getClass())) {
+-            System.out.println("Warning this is an insecure RNG");
++            // System.out.println("Warning this is an insecure RNG");
+         }
+         RNG = rng;
+ 

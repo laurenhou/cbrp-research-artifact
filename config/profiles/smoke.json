@@ -1,0 +1,26 @@
+{
+  "description": "Small functional run: three distinct measured input pairs, no warmup; not performance estimates.",
+  "jobs": [
+    {
+      "scheme": "cbrp-dl",
+      "bits": 32,
+      "warmup": 0,
+      "iterations": 3,
+      "bases": [
+        16
+      ]
+    },
+    {
+      "scheme": "bulletproofs",
+      "bits": 32,
+      "warmup": 0,
+      "iterations": 3
+    },
+    {
+      "scheme": "flashproofs",
+      "bits": 32,
+      "warmup": 0,
+      "iterations": 3
+    }
+  ]
+}

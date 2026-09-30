@@ -1,0 +1,12 @@
+item,value
+vmware,Workstation 17 Pro 17.6.1 build-24319023
+os,Ubuntu 20.04.6 LTS
+kernel,5.15.0-139-generic
+cpu,13th Gen Intel Core i7-13620H
+vcpus,16
+memory,7.5 GiB
+java,OpenJDK 17.0.15
+maven,Apache Maven 3.6.3
+cbrp_bc,1.61
+flashproofs_bc,1.56
+numpy,not specified in thesis

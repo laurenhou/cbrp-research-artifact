@@ -1,0 +1,18 @@
+{
+  "description": "Random valid input pairs, fresh toy KTX table per round; functional prototype only.",
+  "bits": [
+    16,
+    32,
+    64
+  ],
+  "bases": [
+    16,
+    256
+  ],
+  "q": 4093,
+  "nL": 128,
+  "m": 512,
+  "rho": 137,
+  "iterations": 20,
+  "warmup": 2
+}

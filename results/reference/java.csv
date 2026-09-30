@@ -1,0 +1,11 @@
+scheme,range_bits,base,commit_ms,prove_ms,verify_ms,proof_bytes,source,dependency_mode,warmup,iterations,K,L,n,ell
+bulletproofs,32,,1.288,533.744,296.502,622,"Thesis Table 6.4, printed p.69 / PDF p.81",published-observation,5,20,,,,
+flashproofs,32,,1.5,73.536,29.999,746,"Thesis Table 6.4, printed p.69 / PDF p.81",published-observation,5,20,3,11,,
+cbrp-dl,32,16,215.8,136.53,183.08,4416,"Thesis Table 6.4, printed p.69 / PDF p.81",published-observation,10,50,,,8,8
+cbrp-dl,32,256,379.8,31.26,53.52,1168,"Thesis Table 6.4, printed p.69 / PDF p.81",published-observation,10,50,,,4,4
+cbrp-dl,32,65536,48193.5,6.67,17.76,324,"Thesis Table 6.4, printed p.69 / PDF p.81",published-observation,10,50,,,2,2
+bulletproofs,64,,1.415,1064.601,575.341,688,"Thesis Table 6.5, printed p.70 / PDF p.82",published-observation,5,20,,,,
+flashproofs,64,,1.459,116.549,36.994,1005,"Thesis Table 6.5, printed p.70 / PDF p.82",published-observation,5,20,4,16,,
+cbrp-dl,64,16,161.9,555.88,644.18,17152,"Thesis Table 6.5, printed p.70 / PDF p.82",published-observation,10,50,,,16,16
+cbrp-dl,64,256,743.3,134.0,178.12,4416,"Thesis Table 6.5, printed p.70 / PDF p.82",published-observation,10,50,,,8,8
+cbrp-dl,64,65536,94579.2,34.66,57.83,1168,"Thesis Table 6.5, printed p.70 / PDF p.82",published-observation,10,50,,,4,4

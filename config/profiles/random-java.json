@@ -1,0 +1,51 @@
+{
+  "description": "Random valid (w,t), fresh credential per CBRP round, shifted-range baselines; not the historical fixed-threshold workload.",
+  "jobs": [
+    {
+      "scheme": "cbrp-dl",
+      "bits": 32,
+      "warmup": 10,
+      "iterations": 50,
+      "bases": [
+        16,
+        256,
+        65536
+      ]
+    },
+    {
+      "scheme": "bulletproofs",
+      "bits": 32,
+      "warmup": 5,
+      "iterations": 20
+    },
+    {
+      "scheme": "flashproofs",
+      "bits": 32,
+      "warmup": 5,
+      "iterations": 20
+    },
+    {
+      "scheme": "cbrp-dl",
+      "bits": 64,
+      "warmup": 10,
+      "iterations": 50,
+      "bases": [
+        16,
+        256,
+        65536
+      ]
+    },
+    {
+      "scheme": "bulletproofs",
+      "bits": 64,
+      "warmup": 5,
+      "iterations": 20
+    },
+    {
+      "scheme": "flashproofs",
+      "bits": 64,
+      "warmup": 5,
+      "iterations": 20
+    }
+  ]
+}

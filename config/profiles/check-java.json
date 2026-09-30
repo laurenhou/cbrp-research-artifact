@@ -1,0 +1,49 @@
+{
+  "description": "Functional coverage across 32/64 bits and bases 16/256: one warmup, three measured inputs. Excludes the expensive base 65536.",
+  "jobs": [
+    {
+      "scheme": "cbrp-dl",
+      "bits": 32,
+      "warmup": 1,
+      "iterations": 3,
+      "bases": [
+        16,
+        256
+      ]
+    },
+    {
+      "scheme": "bulletproofs",
+      "bits": 32,
+      "warmup": 1,
+      "iterations": 3
+    },
+    {
+      "scheme": "flashproofs",
+      "bits": 32,
+      "warmup": 1,
+      "iterations": 3
+    },
+    {
+      "scheme": "cbrp-dl",
+      "bits": 64,
+      "warmup": 1,
+      "iterations": 3,
+      "bases": [
+        16,
+        256
+      ]
+    },
+    {
+      "scheme": "bulletproofs",
+      "bits": 64,
+      "warmup": 1,
+      "iterations": 3
+    },
+    {
+      "scheme": "flashproofs",
+      "bits": 64,
+      "warmup": 1,
+      "iterations": 3
+    }
+  ]
+}

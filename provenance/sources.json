@@ -1,0 +1,36 @@
+{
+  "thesis": {
+    "filename": "You_Lin_Hou_Thesis_NTNU_Electronic_Submission_Revised_2026_08_09_Source__2_.pdf",
+    "sha256": "26ee8c1b4df43205fbcaee5d63e7cd7bc585ca8b2b609ccd5ffe3b2ab1ce8bde",
+    "total_pdf_pages": 98,
+    "title": "A Public-Coin Credential-Based Range Proof with Reusable Commitments",
+    "basis": "Algorithm numbers and historical reference tables; current benchmarks use randomized inputs."
+  },
+  "upstream_snapshots": [
+    {
+      "name": "bulletprooflib",
+      "nested_archive": "BulletProofLib-master.zip",
+      "nested_archive_sha256": "ef3412ff8b103ab2b9238d9f99dc1cc6c65d0c1fc6aa4cb5d456711f8f5673db",
+      "commit_from_zip_comment": "bb3037467261fbb9f186cc899dc8c32d5d506417",
+      "independently_verified_online": false,
+      "retained_source_count": 26,
+      "text_changes_relative_to_nested_snapshot": [
+        "third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/EfficientInnerProductVerifier.java",
+        "third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/innerproduct/InnerProductProver.java",
+        "third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofProver.java",
+        "third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/rangeproof/RangeProofVerifier.java",
+        "third_party/bulletprooflib/src/main/java/edu/stanford/cs/crypto/efficientct/util/ProofUtils.java"
+      ]
+    },
+    {
+      "name": "flashproofs",
+      "nested_archive": "Flashproofs-main.zip",
+      "nested_archive_sha256": "463d531ed0460c78e28a742cb8e15285ea6a5c7c366614eec351bef98e4e5228",
+      "commit_from_zip_comment": "bdd628e84e95890568b816e727632a0e6763f0cb",
+      "independently_verified_online": false,
+      "retained_source_count": 19,
+      "text_changes_relative_to_nested_snapshot": []
+    }
+  ],
+  "note": "Source lineage and upstream snapshot identifiers. These archives are not required to build or execute this repository."
+}

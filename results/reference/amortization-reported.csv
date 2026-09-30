@@ -1,0 +1,7 @@
+range_bits,base,prove_plus_verify_ms,vs_bulletproofs,vs_flashproofs,source
+32,16,319.61,Within one proof execution,Never,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
+32,256,84.78,Within one proof execution,Approx. 19,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
+32,65536,24.43,Approx. 60,Approx. 600,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
+64,16,1200.06,Within one proof execution,Never,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
+64,256,312.12,Within one proof execution,Never,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
+64,65536,92.49,Approx. 62,Approx. 1513,"Thesis Tables 6.6/6.7, printed p.72 / PDF p.84"
