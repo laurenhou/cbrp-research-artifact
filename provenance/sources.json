@@ -1,6 +1,13 @@
 {
-  "thesis": {
-    "filename": "You_Lin_Hou_Thesis_NTNU_Electronic_Submission_Revised_2026_08_09_Source__2_.pdf",
+  "journal_manuscript": {
+    "filename": "journal-manuscript.pdf",
+    "sha256": "74fea3f6ed8f1b72bfe039c2ea9a62179346b7a413546b373e8ad133ce1a7c41",
+    "total_pdf_pages": 17,
+    "title": "A Public-Coin Credential-Based Range Proof with Reusable Commitments",
+    "basis": "Primary manuscript for terminology, algorithm references, implementation environment, and experiment descriptions."
+  },
+  "historical_thesis": {
+    "filename": "historical-thesis.pdf",
     "sha256": "26ee8c1b4df43205fbcaee5d63e7cd7bc585ca8b2b609ccd5ffe3b2ab1ce8bde",
     "total_pdf_pages": 98,
     "title": "A Public-Coin Credential-Based Range Proof with Reusable Commitments",
@@ -9,7 +16,7 @@
   "upstream_snapshots": [
     {
       "name": "bulletprooflib",
-      "nested_archive": "BulletProofLib-master.zip",
+      "nested_archive": "BulletProofLib-upstream.zip",
       "nested_archive_sha256": "ef3412ff8b103ab2b9238d9f99dc1cc6c65d0c1fc6aa4cb5d456711f8f5673db",
       "commit_from_zip_comment": "bb3037467261fbb9f186cc899dc8c32d5d506417",
       "independently_verified_online": false,
@@ -24,13 +31,65 @@
     },
     {
       "name": "flashproofs",
-      "nested_archive": "Flashproofs-main.zip",
+      "nested_archive": "Flashproofs-upstream.zip",
       "nested_archive_sha256": "463d531ed0460c78e28a742cb8e15285ea6a5c7c366614eec351bef98e4e5228",
       "commit_from_zip_comment": "bdd628e84e95890568b816e727632a0e6763f0cb",
       "independently_verified_online": false,
       "retained_source_count": 19,
       "text_changes_relative_to_nested_snapshot": []
+    },
+    {
+      "name": "hashwires",
+      "archive": "hashwires-upstream.zip",
+      "archive_sha256": "a23507862f04cd7edd2e2968d32453a4a71e93f46fef0302b10f6691915c8646",
+      "commit_from_zip_comment": "473f726f243c8ac1329d9eccda0947f0a111311e",
+      "independently_verified_online": false,
+      "upstream_archive_file_count": 25,
+      "upstream_language": "Rust",
+      "license": "MIT",
+      "java_port": {
+        "protocol_file": "third_party/hashwires/src/main/java/org/hashwires/HashWires.java",
+        "based_on": [
+          "src/dp.rs",
+          "src/hashes.rs",
+          "src/hashwires.rs",
+          "src/serialization.rs",
+          "src/shuffle.rs"
+        ],
+        "scope": [
+          "ordinary one-time HashWires",
+          "minimum dominating partitions",
+          "shared hash multichains",
+          "padded linear accumulator",
+          "16-byte per-MDP salts",
+          "deterministic padded Merkle accumulator"
+        ],
+        "intentional_differences": [
+          "JDK SHA-256 MessageDigest backend",
+          "domain-separated SHA-256 counter sampler drives deterministic Durstenfeld shuffling instead of ChaCha12",
+          "canonical Java proof encoding follows paper element-count accounting and is not Rust-byte-compatible",
+          "outer Section 5.2 T-time Merkle wrapper omitted",
+          "optional anti-malleability checksum chain omitted",
+          "paper Algorithm 1 exact-power boundary uses b^i <= x, correcting the recorded Rust snapshot strict-loop edge case",
+          "branch selection verifies digit-wise dominance instead of relying only on numeric ordering",
+          "zero is represented by one significant zero digit for the artifact input domain [0,2^bits)"
+        ],
+        "line_by_line_patch_available": false
+      },
+      "paper": {
+        "filename": "hashwires-paper.pdf",
+        "sha256": "d9c902c4a0f7c0fa1cd3ca4d50a1a74ff82bfa1baa97e1b364bd3afd9dffb2c0",
+        "title": "HashWires: Hyperefficient Credential-Based Range Proofs",
+        "basis": [
+          "Algorithm 1: minimum dominating partition",
+          "Section 3: Commit, Prove, and Verify structure",
+          "Section 4.1.1: padded linear accumulator",
+          "Section 4.1.2: deterministic padded sparse Merkle tree",
+          "Section 4.2: shared multichains and per-MDP salts",
+          "Appendix B: deterministic KDFs and Durstenfeld shuffling"
+        ]
+      }
     }
   ],
-  "note": "Source lineage and upstream snapshot identifiers. These archives are not required to build or execute this repository."
+  "note": "Source lineage and recorded upstream snapshot identifiers. The upstream archives are provenance references and are not required to build or run this source distribution. The HashWires Java port is a derivative implementation, not a byte-identical retained Rust snapshot."
 }

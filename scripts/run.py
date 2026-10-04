@@ -2,136 +2,483 @@
 # Copyright (c) 2026 You-Lin Hou
 # SPDX-License-Identifier: BSD-2-Clause
 # See LICENSES/BSD-2-Clause.txt.
-"""Run randomized Java benchmarks and save raw samples and summaries as CSV."""
+"""Run Java benchmarks and save fixtures, raw samples, and summaries as CSV."""
 from __future__ import annotations
+
 import argparse
+import copy
 import json
 import re
 import secrets
 import subprocess
 import sys
 from pathlib import Path
-from common import ROOT, MODULES, current_build, environment, inventory, java_cmd, new_run, sha256, write_json
-from inputs import SAMPLING, generate_cases, write_cases, read_cases
-from results_io import read_csv, check_rows, annotate, summarize, write_csv, SAMPLE_FIELDS, SUMMARY_FIELDS
+
+from common import (
+    MODULES,
+    ROOT,
+    current_build,
+    environment,
+    inventory,
+    java_cmd,
+    new_run,
+    public_command,
+    sha256,
+    write_json,
+)
+from inputs import (
+    PAPER_FIXED_SAMPLING,
+    RANDOM_SAMPLING,
+    generate_cases,
+    generate_paper_fixed_cases,
+    read_cases,
+    write_cases,
+)
+from results_io import (
+    AGGREGATE_SUMMARY_FIELDS,
+    SAMPLE_FIELDS,
+    SUMMARY_FIELDS,
+    annotate,
+    check_rows,
+    read_csv,
+    summarize,
+    summarize_aggregate,
+    write_csv,
+)
 
 
-def validate_job(job):
-    if job.get('scheme') not in MODULES or job.get('bits') not in (32,64):
-        raise ValueError('use cbrp-dl/bulletproofs/flashproofs and 32/64 bits')
-    for field, minimum in [('warmup',0),('iterations',1)]:
-        if type(job.get(field)) is not int or job[field]<minimum:
-            raise ValueError(f'{field} must be integer >= {minimum}')
-    if job['scheme']=='cbrp-dl':
-        bases=job.get('bases',[])
-        if not bases or any(type(b) is not int or b not in (16,256,65536) for b in bases) or len(set(bases))!=len(bases):
-            raise ValueError('distinct bases drawn from 16,256,65536 required')
+def validate_job(job: dict) -> None:
+    if job.get("scheme") not in MODULES or job.get("bits") not in (32, 64):
+        raise ValueError(
+            "use cbrp-dl/hashwires/bulletproofs/flashproofs and 32/64 bits"
+        )
+    for field, minimum in (("warmup", 0), ("iterations", 1)):
+        if type(job.get(field)) is not int or job[field] < minimum:
+            raise ValueError(f"{field} must be integer >= {minimum}")
+    if job["scheme"] == "cbrp-dl":
+        bases = job.get("bases", [])
+        if (
+            not bases
+            or any(
+                type(base) is not int or base not in (16, 256, 65536)
+                for base in bases
+            )
+            or len(set(bases)) != len(bases)
+        ):
+            raise ValueError(
+                "distinct CBRP-DL bases drawn from 16,256,65536 required"
+            )
+    elif job["scheme"] == "hashwires":
+        bases = job.get("bases", [])
+        if (
+            not bases
+            or any(
+                type(base) is not int or base not in (2, 4, 16, 256)
+                for base in bases
+            )
+            or len(set(bases)) != len(bases)
+        ):
+            raise ValueError(
+                "distinct HashWires bases drawn from 2,4,16,256 required"
+            )
 
 
-def command(job, input_path, sample_path, heap):
-    s,bits,warm,it=job['scheme'],job['bits'],job['warmup'],job['iterations']
-    if s=='cbrp-dl':
-        main='CBRPDLFull';args=[bits,','.join(map(str,job['bases'])),warm,it,input_path,sample_path]
-    elif s=='bulletproofs':
-        main='edu.stanford.cs.crypto.BulletproofRangeBench';args=[bits,warm,it,input_path,sample_path]
+def expand_jobs(jobs: list[dict]) -> list[dict]:
+    """Run each radix in a separate JVM to avoid fixed order/JIT carry-over."""
+    expanded = []
+    for original in jobs:
+        if original["scheme"] in ("cbrp-dl", "hashwires"):
+            for base in original["bases"]:
+                job = copy.deepcopy(original)
+                job["bases"] = [base]
+                expanded.append(job)
+        else:
+            expanded.append(copy.deepcopy(original))
+    return expanded
+
+
+def command(
+    job: dict,
+    input_path: Path,
+    sample_path: Path,
+    heap: str,
+    input_mode: str = "randomized",
+) -> list[str]:
+    scheme, bits = job["scheme"], job["bits"]
+    warmup, iterations = job["warmup"], job["iterations"]
+    if scheme == "cbrp-dl":
+        main = "CBRPDLFull"
+        args = [
+            bits,
+            ",".join(map(str, job["bases"])),
+            warmup,
+            iterations,
+            input_path,
+            sample_path,
+        ]
+    elif scheme == "hashwires":
+        main = "research.baselines.hashwires.HashWiresRangeBench"
+        args = [
+            bits,
+            ",".join(map(str, job["bases"])),
+            warmup,
+            iterations,
+            input_path,
+            sample_path,
+        ]
+        if input_mode == "paper-fixed":
+            args.append("allow-repeated")
+    elif scheme == "bulletproofs":
+        main = "edu.stanford.cs.crypto.BulletproofRangeBench"
+        args = [bits, warmup, iterations, input_path, sample_path]
     else:
-        main='FlashproofRangeBench';args=[bits,11 if bits==32 else 16,warm,it,input_path,sample_path]
-    return java_cmd(s,main,args,heap)
+        main = "FlashproofRangeBench"
+        args = [
+            bits,
+            11 if bits == 32 else 16,
+            warmup,
+            iterations,
+            input_path,
+            sample_path,
+        ]
+    return java_cmd(scheme, main, args, heap)
 
 
-def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    group=p.add_mutually_exclusive_group()
-    group.add_argument('--profile', help='smoke (default), random-java, or a profile JSON path')
-    group.add_argument('--scheme', choices=MODULES)
-    p.add_argument('--bits', type=int, default=32)
-    p.add_argument('--bases', default='16,256')
-    p.add_argument('--warmup', type=int)
-    p.add_argument('--iterations', type=int)
-    p.add_argument('--seed', type=int, help='public test-input seed; omitted means generate and record a new seed')
-    p.add_argument('--repeat', type=int, default=1, help='independent JVM executions and fixture schedules')
-    p.add_argument('--heap', default='2g')
-    p.add_argument('--timeout', type=int, default=0, help='per-JVM seconds; 0=no timeout')
-    a=p.parse_args()
-    if a.repeat<1 or a.timeout<0 or (a.seed is not None and a.seed<0):p.error('repeat>=1, timeout>=0, seed>=0 required')
-    if a.scheme:
-        job=dict(scheme=a.scheme,bits=a.bits,warmup=a.warmup if a.warmup is not None else (10 if a.scheme=='cbrp-dl' else 5),
-                 iterations=a.iterations if a.iterations is not None else (50 if a.scheme=='cbrp-dl' else 20))
-        if a.scheme=='cbrp-dl':job['bases']=[int(b) for b in a.bases.split(',')]
-        cfg={'jobs':[job]};label=a.scheme
+def _write_combined_outputs(
+    output: Path,
+    measured: list[dict],
+    warmups: list[dict],
+    setups: list[dict],
+) -> None:
+    write_csv(output / "samples.csv", measured, SAMPLE_FIELDS)
+    write_csv(output / "warmup.csv", warmups, SAMPLE_FIELDS)
+    write_csv(output / "summary.csv", summarize(measured, warmups), SUMMARY_FIELDS)
+    write_csv(
+        output / "summary-aggregate.csv",
+        summarize_aggregate(measured, warmups),
+        AGGREGATE_SUMMARY_FIELDS,
+    )
+    write_csv(
+        output / "setup.csv",
+        setups,
+        [
+            "job",
+            "repeat",
+            "scheme",
+            "range_bits",
+            "base",
+            "metric",
+            "milliseconds",
+        ],
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--profile",
+        help=(
+            "smoke (default), check-java, random-java, "
+            "hashwires-paper-fixed, or a profile JSON path"
+        ),
+    )
+    group.add_argument("--scheme", choices=MODULES)
+    parser.add_argument("--bits", type=int, default=32)
+    parser.add_argument("--bases", default="16,256")
+    parser.add_argument("--warmup", type=int)
+    parser.add_argument("--iterations", type=int)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        help="public test-input seed; omitted means generate and record a new seed",
+    )
+    parser.add_argument(
+        "--input-mode",
+        choices=("randomized", "paper-fixed"),
+        help=(
+            "fixture mode; paper-fixed repeats w=N-2,t=floor(N/2)+1 "
+            "and is HashWires-only"
+        ),
+    )
+    parser.add_argument(
+        "--repeat",
+        type=int,
+        default=1,
+        help="independent JVM executions and fixture schedules",
+    )
+    parser.add_argument("--heap", default="2g")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=0,
+        help="per-JVM seconds; 0=no timeout",
+    )
+    args = parser.parse_args()
+    if args.repeat < 1 or args.timeout < 0 or (
+        args.seed is not None and args.seed < 0
+    ):
+        parser.error("repeat>=1, timeout>=0, seed>=0 required")
+
+    if args.scheme:
+        baseline = args.scheme != "cbrp-dl"
+        job = {
+            "scheme": args.scheme,
+            "bits": args.bits,
+            "warmup": (
+                args.warmup if args.warmup is not None else (5 if baseline else 10)
+            ),
+            "iterations": (
+                args.iterations
+                if args.iterations is not None
+                else (20 if baseline else 50)
+            ),
+        }
+        if args.scheme in ("cbrp-dl", "hashwires"):
+            job["bases"] = [int(base) for base in args.bases.split(",")]
+        configuration = {"jobs": [job]}
+        label = args.scheme
     else:
-        label=a.profile or 'smoke';path=Path(label)
-        if not path.is_file():path=ROOT/'config/profiles'/(label+'.json')
-        cfg=json.loads(path.read_text());label=path.stem
-        for job in cfg['jobs']:
-            if a.warmup is not None:job['warmup']=a.warmup
-            if a.iterations is not None:job['iterations']=a.iterations
-    if not cfg.get('jobs'):raise ValueError('empty profile')
-    for job in cfg['jobs']:validate_job(job)
-    builds={s:current_build(s) for s in {j['scheme'] for j in cfg['jobs']}}
-    command(cfg['jobs'][0],ROOT/'input-placeholder.csv',ROOT/'output-placeholder.csv',a.heap)
-    seed=a.seed if a.seed is not None else secrets.randbits(128)
-    out=new_run(label)
-    meta={'status':'RUNNING','implementation_revision':'randomized-v3','sampling':SAMPLING,'input_seed':str(seed),
-          'environment':environment(),'configuration':cfg,'repeat':a.repeat,'builds':builds,'jobs':[],
-          'sources':inventory(sorted((ROOT/'scripts').glob('*.py'))),
-          'workload':'Fresh w,t each execution; fresh CBRP credential per execution; baselines prove a range for delta=w-t.',
-          'input_files':[]}
-    write_json(out/'metadata.json',meta); measured=[];warmups=[];setups=[]
+        label = args.profile or "smoke"
+        profile_path = Path(label)
+        if not profile_path.is_file():
+            profile_path = ROOT / "config/profiles" / (label + ".json")
+        configuration = json.loads(profile_path.read_text(encoding="utf-8"))
+        label = profile_path.stem
+        for job in configuration["jobs"]:
+            if args.warmup is not None:
+                job["warmup"] = args.warmup
+            if args.iterations is not None:
+                job["iterations"] = args.iterations
+
+    input_mode = args.input_mode or configuration.get("input_mode", "randomized")
+    if input_mode not in ("randomized", "paper-fixed"):
+        raise ValueError("invalid input_mode")
+    if input_mode == "paper-fixed" and any(
+        job.get("scheme") != "hashwires"
+        for job in configuration.get("jobs", [])
+    ):
+        raise ValueError("paper-fixed mode is restricted to HashWires jobs")
+    if not configuration.get("jobs"):
+        raise ValueError("empty profile")
+
+    for job in configuration["jobs"]:
+        validate_job(job)
+    jobs = expand_jobs(configuration["jobs"])
+    builds = {
+        scheme: current_build(scheme) for scheme in {job["scheme"] for job in jobs}
+    }
+    command(
+        jobs[0],
+        ROOT / "input-placeholder.csv",
+        ROOT / "output-placeholder.csv",
+        args.heap,
+        input_mode,
+    )
+
+    seed = args.seed if args.seed is not None else secrets.randbits(128)
+    output = new_run(label)
+    metadata = {
+        "status": "RUNNING",
+        "implementation_revision": "journal-artifact-v2",
+        "sampling": (
+            PAPER_FIXED_SAMPLING if input_mode == "paper-fixed" else RANDOM_SAMPLING
+        ),
+        "input_mode": input_mode,
+        "input_seed": str(seed),
+        "environment": environment(),
+        "configuration": configuration,
+        "execution_policy": "one radix per JVM process",
+        "expanded_jobs": jobs,
+        "repeat": args.repeat,
+        "builds": builds,
+        "jobs": [],
+        "sources": inventory(sorted((ROOT / "scripts").glob("*.py"))),
+        "workload": (
+            "Repeated paper statement w=N-2,t=floor(N/2)+1; fresh ordinary "
+            "HashWires seed/commitment per execution."
+            if input_mode == "paper-fixed"
+            else "Fresh w,t each execution; fresh CBRP credential or HashWires "
+            "seed/commitment per execution; CBRP-DL and HashWires prove w>=t "
+            "directly; algebraic baselines prove delta=w-t."
+        ),
+        "input_files": [],
+    }
+    write_json(output / "metadata.json", metadata)
+
+    measured: list[dict] = []
+    warmups: list[dict] = []
+    setups: list[dict] = []
     try:
-        schedules={}
-        for repeat in range(1,a.repeat+1):
-            for bits in sorted({j['bits'] for j in cfg['jobs']}):
-                jobs=[j for j in cfg['jobs'] if j['bits']==bits]
-                nw=max(j['warmup'] for j in jobs);ni=max(j['iterations'] for j in jobs)
-                path=out/f'inputs-r{repeat}-b{bits}.csv'
-                write_cases(path,generate_cases(bits,nw,ni,seed,repeat))
-                schedules[repeat,bits]=path
-                meta['input_files'].append({'file':path.name,'sha256':sha256(path),'repeat':repeat,'bits':bits})
-        write_json(out/'metadata.json',meta)
-        index=0
-        for repeat in range(1,a.repeat+1):
-            for job in cfg['jobs']:
-                index+=1;prefix=f'{index:02d}-{job["scheme"]}-{job["bits"]}'
-                stdout,stderr,samples=[out/(prefix+ext) for ext in ('.stdout.log','.stderr.log','.samples.csv')]
-                fixture=schedules[repeat,job['bits']]
-                cases=read_cases(fixture,job['bits'],job['warmup'],job['iterations'])
-                cmd=command(job,fixture,samples,a.heap)
-                entry={'parameters':job,'command':cmd,'repeat':repeat,'status':'RUNNING','stdout':stdout.name,
-                       'stderr':stderr.name,'samples':samples.name,'inputs':fixture.name}
-                meta['jobs'].append(entry);write_json(out/'metadata.json',meta)
-                print(f'[{index}] {job["scheme"]} bits={job["bits"]} bases={job.get("bases","-")} warmup={job["warmup"]} iterations={job["iterations"]}',flush=True)
-                if job['scheme']=='cbrp-dl':print('  Fresh credential EVERY round; progress is recorded in '+stderr.name,flush=True)
-                with stdout.open('w') as so,stderr.open('w') as se:
-                    proc=subprocess.run(cmd,stdout=so,stderr=se,timeout=a.timeout or None)
-                entry['exit_code']=proc.returncode
-                if proc.returncode:raise RuntimeError(f'JVM failed; read {stderr}')
-                raw=read_csv(samples);check_rows(raw,job,cases)
-                entry['samples_sha256']=sha256(samples)
-                for row in annotate(raw,repeat,index,builds[job['scheme']]['dependencies']['mode']):
-                    (measured if row['phase']=='measure' else warmups).append(row)
-                for line in stderr.read_text().splitlines():
-                    match=re.fullmatch(r'(?:base=(\d+),)?([a-z_]+_ms)=([0-9.]+)',line)
-                    if match:setups.append(dict(job=index,repeat=repeat,scheme=job['scheme'],range_bits=job['bits'],base=match[1] or '',metric=match[2],milliseconds=match[3]))
-                entry['status']='PASS'
-                write_csv(out/'samples.csv',measured,SAMPLE_FIELDS)
-                write_csv(out/'warmup.csv',warmups,SAMPLE_FIELDS)
-                write_csv(out/'summary.csv',summarize(measured,warmups),SUMMARY_FIELDS)
-                write_csv(out/'setup.csv',setups,['job','repeat','scheme','range_bits','base','metric','milliseconds'])
-                write_json(out/'metadata.json',meta)
-        meta['status']='PASS'
-    except (Exception,KeyboardInterrupt) as e:
-        meta['status']='FAILED';meta['error']=str(e)
-        if meta['jobs'] and meta['jobs'][-1]['status']=='RUNNING':meta['jobs'][-1]['status']='FAILED'
+        schedules: dict[tuple[int, int], Path] = {}
+        for repeat in range(1, args.repeat + 1):
+            for bits in sorted({job["bits"] for job in jobs}):
+                bit_jobs = [job for job in jobs if job["bits"] == bits]
+                number_warmups = max(job["warmup"] for job in bit_jobs)
+                number_iterations = max(job["iterations"] for job in bit_jobs)
+                fixture_path = output / f"inputs-r{repeat}-b{bits}.csv"
+                fixture_rows = (
+                    generate_paper_fixed_cases(
+                        bits,
+                        number_warmups,
+                        number_iterations,
+                    )
+                    if input_mode == "paper-fixed"
+                    else generate_cases(
+                        bits,
+                        number_warmups,
+                        number_iterations,
+                        seed,
+                        repeat,
+                    )
+                )
+                write_cases(fixture_path, fixture_rows)
+                schedules[repeat, bits] = fixture_path
+                metadata["input_files"].append(
+                    {
+                        "file": fixture_path.name,
+                        "sha256": sha256(fixture_path),
+                        "repeat": repeat,
+                        "bits": bits,
+                    }
+                )
+        write_json(output / "metadata.json", metadata)
+
+        index = 0
+        for repeat in range(1, args.repeat + 1):
+            for job in jobs:
+                index += 1
+                base_suffix = (
+                    f"-b{job['bases'][0]}" if job.get("bases") else ""
+                )
+                prefix = f"{index:02d}-{job['scheme']}-{job['bits']}{base_suffix}"
+                stdout_path = output / (prefix + ".stdout.log")
+                stderr_path = output / (prefix + ".stderr.log")
+                samples_path = output / (prefix + ".samples.csv")
+                fixture_path = schedules[repeat, job["bits"]]
+                cases = read_cases(
+                    fixture_path,
+                    job["bits"],
+                    job["warmup"],
+                    job["iterations"],
+                    require_distinct=input_mode != "paper-fixed",
+                )
+                run_command = command(
+                    job,
+                    fixture_path,
+                    samples_path,
+                    args.heap,
+                    input_mode,
+                )
+                entry = {
+                    "parameters": job,
+                    "command": public_command(run_command),
+                    "repeat": repeat,
+                    "status": "RUNNING",
+                    "stdout": stdout_path.name,
+                    "stderr": stderr_path.name,
+                    "samples": samples_path.name,
+                    "inputs": fixture_path.name,
+                }
+                metadata["jobs"].append(entry)
+                write_json(output / "metadata.json", metadata)
+
+                print(
+                    f"[{index}] {job['scheme']} bits={job['bits']} "
+                    f"bases={job.get('bases', '-')} warmup={job['warmup']} "
+                    f"iterations={job['iterations']}",
+                    flush=True,
+                )
+                if job["scheme"] in ("cbrp-dl", "hashwires"):
+                    print(
+                        "  Fresh credential/commitment every round; progress is "
+                        f"recorded in {stderr_path.name}",
+                        flush=True,
+                    )
+                with stdout_path.open(
+                    "w", encoding="utf-8"
+                ) as stdout_log, stderr_path.open(
+                    "w", encoding="utf-8"
+                ) as stderr_log:
+                    process = subprocess.run(
+                        run_command,
+                        stdout=stdout_log,
+                        stderr=stderr_log,
+                        timeout=args.timeout or None,
+                        check=False,
+                    )
+                entry["exit_code"] = process.returncode
+                if process.returncode:
+                    raise RuntimeError(f"JVM failed; read {stderr_path}")
+
+                raw = read_csv(samples_path)
+                check_rows(raw, job, cases)
+                entry["samples_sha256"] = sha256(samples_path)
+                annotated = annotate(
+                    raw,
+                    repeat,
+                    index,
+                    builds[job["scheme"]]["dependencies"]["mode"],
+                )
+                for row in annotated:
+                    (measured if row["phase"] == "measure" else warmups).append(row)
+
+                default_base = str(job.get("bases", [""])[0])
+                for line in stderr_path.read_text(encoding="utf-8").splitlines():
+                    match = re.fullmatch(
+                        r"(?:base=(\d+),)?([a-z_]+_ms)=([0-9.]+)", line
+                    )
+                    if match:
+                        setups.append(
+                            {
+                                "job": index,
+                                "repeat": repeat,
+                                "scheme": job["scheme"],
+                                "range_bits": job["bits"],
+                                "base": match[1] or default_base,
+                                "metric": match[2],
+                                "milliseconds": match[3],
+                            }
+                        )
+                entry["status"] = "PASS"
+                _write_combined_outputs(output, measured, warmups, setups)
+                write_json(output / "metadata.json", metadata)
+        metadata["status"] = "PASS"
+    except KeyboardInterrupt:
+        metadata["status"] = "FAILED"
+        metadata["error"] = "interrupted"
+        if metadata["jobs"] and metadata["jobs"][-1]["status"] == "RUNNING":
+            metadata["jobs"][-1]["status"] = "FAILED"
+        raise
+    except Exception as error:
+        metadata["status"] = "FAILED"
+        metadata["error"] = str(error)
+        if metadata["jobs"] and metadata["jobs"][-1]["status"] == "RUNNING":
+            metadata["jobs"][-1]["status"] = "FAILED"
         raise
     finally:
-        meta['csv_files']=[{'file':p.name,'sha256':sha256(p)} for p in sorted(out.glob('*.csv'))]
-        write_json(out/'metadata.json',meta);(out/'STATUS').write_text(meta['status']+'\n')
-        print('Results: '+str(out),flush=True)
-    print('RUN PASS')
+        metadata["csv_files"] = [
+            {"file": path.name, "sha256": sha256(path)}
+            for path in sorted(output.glob("*.csv"))
+        ]
+        write_json(output / "metadata.json", metadata)
+        (output / "STATUS").write_text(metadata["status"] + "\n", encoding="utf-8")
+        print("Results: " + str(output), flush=True)
+    print("RUN PASS")
 
 
-if __name__=='__main__':
-    try:main()
-    except (OSError,ValueError,KeyError,RuntimeError,subprocess.SubprocessError) as e:
-        print('RUN FAILED: '+str(e),file=sys.stderr);sys.exit(1)
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("RUN FAILED: interrupted", file=sys.stderr)
+        sys.exit(130)
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        RuntimeError,
+        subprocess.SubprocessError,
+    ) as error:
+        print("RUN FAILED: " + str(error), file=sys.stderr)
+        sys.exit(1)

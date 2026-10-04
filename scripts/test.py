@@ -9,24 +9,34 @@ import subprocess
 import sys
 from common import ROOT, MODULES, current_build, java_cmd
 
+SELF_TESTS = {
+    'cbrp-dl': 'CBRPSelfTest',
+    'hashwires': 'HashWiresSelfTest',
+    'bulletproofs': 'BPSelfTest',
+    'flashproofs': 'FPSelfTest',
+}
+
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__)
-    group=p.add_mutually_exclusive_group()
-    group.add_argument('--python-only',action='store_true')
-    group.add_argument('--java-only',action='store_true')
-    a=p.parse_args()
-    if not a.java_only:
-        subprocess.run([sys.executable,'-m','unittest','discover','-s',str(ROOT/'tests'),'-p','test_*.py','-v'],check=True,cwd=ROOT)
-    if not a.python_only:
-        for module,main in zip(MODULES,['CBRPSelfTest','BPSelfTest','FPSelfTest']):
+    parser = argparse.ArgumentParser(description=__doc__)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--python-only', action='store_true')
+    group.add_argument('--java-only', action='store_true')
+    args = parser.parse_args()
+    if not args.java_only:
+        subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', str(ROOT / 'tests'),
+                        '-p', 'test_*.py', '-v'], check=True, cwd=ROOT)
+    if not args.python_only:
+        for module in MODULES:
             current_build(module)
-            subprocess.run(java_cmd(module,main),check=True,cwd=ROOT)
-        subprocess.run(java_cmd('cbrp-dl','BenchmarkDataSelfTest'),check=True,cwd=ROOT)
+            subprocess.run(java_cmd(module, SELF_TESTS[module]), check=True, cwd=ROOT)
+        subprocess.run(java_cmd('cbrp-dl', 'BenchmarkDataSelfTest'), check=True, cwd=ROOT)
     print('TEST PASS')
 
 
-if __name__=='__main__':
-    try:main()
-    except (OSError,ValueError,RuntimeError,subprocess.CalledProcessError) as e:
-        print('TEST FAILED: '+str(e),file=sys.stderr);sys.exit(1)
+if __name__ == '__main__':
+    try:
+        main()
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
+        print('TEST FAILED: ' + str(error), file=sys.stderr)
+        sys.exit(1)

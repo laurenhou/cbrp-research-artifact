@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2026 You-Lin Hou
+ SPDX-License-Identifier: BSD-2-Clause
+ See LICENSES/BSD-2-Clause.txt.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+ <modelVersion>4.0.0</modelVersion><groupId>research.cbrp</groupId>
+ <artifactId>hashwires-dependencies</artifactId><version>0.1.0</version><packaging>pom</packaging>
+ <!-- Documentation-only empty dependency set: the Java port uses JDK MessageDigest SHA-256. -->
+ <dependencies/>
+</project>

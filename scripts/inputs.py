@@ -9,7 +9,9 @@ import random
 from pathlib import Path
 
 INPUT_FIELDS = ['phase', 'iteration', 'range_bits', 'w', 't']
-SAMPLING = 'uniform-valid-pairs-distinct-coordinates-v1'
+RANDOM_SAMPLING = 'uniform-valid-pairs-distinct-coordinates-v1'
+PAPER_FIXED_SAMPLING = 'paper-fixed-w=N-2-t=floor(N/2)+1-v1'
+SAMPLING = RANDOM_SAMPLING  # Backward-compatible name for the default sampler.
 
 
 def derive_seed(seed: int, label: str) -> int:
@@ -52,13 +54,35 @@ def generate_cases(bits: int, warmup: int, iterations: int, seed: int, repeat: i
     return rows
 
 
+def generate_paper_fixed_cases(bits: int, warmup: int, iterations: int) -> list[dict]:
+    """Reproduce the paper fixed statement for every timed execution.
+
+    Uses N = 2**bits, w = N - 2, and t = floor(N/2) + 1. Repeated rows are
+    deliberate here because the paper method repeats one fixed statement.
+    Cryptographic seeds, keys, commitments, and proof randomness remain fresh.
+    """
+    if type(bits) is not int or bits not in (32, 64):
+        raise ValueError('fixed paper workload supports 32 or 64 bits')
+    if type(warmup) is not int or type(iterations) is not int or warmup < 0 or iterations < 1:
+        raise ValueError('warmup>=0 and iterations>=1 required')
+    N = 1 << bits
+    w, t = N - 2, (N // 2) + 1
+    rows = []
+    for phase, count in [('warmup', warmup), ('measure', iterations)]:
+        for index in range(1, count + 1):
+            rows.append(dict(phase=phase, iteration=index, range_bits=bits,
+                             w=str(w), t=str(t)))
+    return rows
+
+
 def write_cases(path: Path, rows: list[dict]) -> None:
     with path.open('w', encoding='utf-8', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=INPUT_FIELDS, lineterminator='\n')
         writer.writeheader(); writer.writerows(rows)
 
 
-def read_cases(path: Path, bits: int, warmup: int, iterations: int) -> list[dict]:
+def read_cases(path: Path, bits: int, warmup: int, iterations: int,
+               require_distinct: bool = True) -> list[dict]:
     with path.open(encoding='utf-8', newline='') as f:
         reader = csv.DictReader(f)
         if reader.fieldnames != INPUT_FIELDS:
@@ -77,7 +101,7 @@ def read_cases(path: Path, bits: int, warmup: int, iterations: int) -> list[dict
         index, w, t = int(row['iteration']), int(row['w']), int(row['t'])
         if int(row['range_bits']) != bits or not 0 <= t <= w < 2**bits:
             raise ValueError('fixture range/statement mismatch')
-        if index != expected[phase] or w in used_w or t in used_t:
+        if index != expected[phase] or (require_distinct and (w in used_w or t in used_t)):
             raise ValueError('duplicate input or invalid iteration order')
         expected[phase] += 1; used_w.add(w); used_t.add(t)
         if index <= (warmup if phase == 'warmup' else iterations):

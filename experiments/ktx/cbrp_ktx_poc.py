@@ -1,7 +1,7 @@
-"""KTX-CBRP functional PoC; algorithm numbers refer to the thesis.
+"""KTX-CBRP functional PoC; algorithm numbers refer to the accompanying journal manuscript.
 
 Toy parameters and hash commitments; issuer labels/signatures are omitted.
-This is not a production KTX implementation (Section 6.6).
+This is not a production KTX implementation; see the manuscript evaluation scope.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -78,12 +78,34 @@ class ProverState:
 
 class CBRP_KTX:
     # Algorithm 10, steps 1-3 (PoC): public parameters and matrix.
-    def __init__(self, N: int, b: int, seed: int = 20260706):
+    def __init__(
+        self,
+        N: int,
+        b: int,
+        public_matrix_seed: int = 20260706,
+        *,
+        private_seed: int | None = None,
+    ):
         self.N, self.b, self.n = N, b, digit_length(N, b)
         if self.n * b > 1_000_000:
             raise ValueError('research harness table limit: 1,000,000 entries')
-        self.rng = np.random.Generator(np.random.PCG64(seed))
-        self.A = self.rng.integers(0, Q_MOD, size=(N_L, M_COL), dtype=np.int64)
+        if type(public_matrix_seed) is not int or public_matrix_seed < 0:
+            raise ValueError('public matrix seed must be a nonnegative integer')
+        if private_seed is not None and (type(private_seed) is not int or private_seed < 0):
+            raise ValueError('private test seed must be a nonnegative integer')
+
+        # Only the public matrix is derived from the recorded public seed.
+        public_rng = np.random.Generator(np.random.PCG64(public_matrix_seed))
+        self.A = public_rng.integers(0, Q_MOD, size=(N_L, M_COL), dtype=np.int64)
+
+        # Witnesses and masks use an independent, unrecorded source. The optional
+        # private_seed is a deterministic unit-test hook, not a benchmark input.
+        private_entropy = (
+            private_seed
+            if private_seed is not None
+            else int.from_bytes(secrets.token_bytes(32), 'big')
+        )
+        self._private_rng = np.random.Generator(np.random.PCG64(private_entropy))
 
     # Algorithm 11, steps 2-4 and 6-7 (PoC): table and authorized witnesses.
     def commit(self, w: int):
@@ -95,7 +117,7 @@ class CBRP_KTX:
             for j in range(self.b):
                 for attempt in range(1000):
                     x = np.zeros(M_COL, dtype=np.int64)
-                    x[self.rng.choice(M_COL, M_COL // 2, replace=False)] = 1
+                    x[self._private_rng.choice(M_COL, M_COL // 2, replace=False)] = 1
                     y = (self.A @ x) % Q_MOD
                     image = ser(y)
                     if image not in seen:
@@ -176,7 +198,7 @@ class CBRP_KTX:
         for _ in range(rho):
             seed = secrets.token_bytes(32)
             perm = self.perm_from_seed(seed, ell)
-            mask = self.rng.integers(0, Q_MOD, size=len(xstar), dtype=np.int64)
+            mask = self._private_rng.integers(0, Q_MOD, size=len(xstar), dtype=np.int64)
             r1, r2, r3 = [secrets.token_bytes(32) for _ in range(3)]
             ar = self.apply_Astar(Ymat, mask)
             pmask = self.apply_perm(perm, mask)

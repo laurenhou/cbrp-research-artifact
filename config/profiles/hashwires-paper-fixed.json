@@ -1,0 +1,26 @@
+{
+  "description": "Ordinary one-time HashWires on w=N-2 and t=floor(N/2)+1, with fresh seeds/commitments and a separate JVM for each radix.",
+  "input_mode": "paper-fixed",
+  "jobs": [
+    {
+      "scheme": "hashwires",
+      "bits": 32,
+      "warmup": 5,
+      "iterations": 20,
+      "bases": [
+        16,
+        256
+      ]
+    },
+    {
+      "scheme": "hashwires",
+      "bits": 64,
+      "warmup": 5,
+      "iterations": 20,
+      "bases": [
+        16,
+        256
+      ]
+    }
+  ]
+}

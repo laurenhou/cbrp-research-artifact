@@ -43,6 +43,8 @@ public final class BulletproofRangeBench {
                 BenchmarkData.value(row,"value_proved",x);
                 BenchmarkData.timing(row,"commit_ms",commitNs);BenchmarkData.timing(row,"prove_ms",proveNs);BenchmarkData.timing(row,"verify_ms",verifyNs);
                 BenchmarkData.value(row,"proof_bytes",proof.numElements()*33+proof.numInts()*32);
+                BenchmarkData.value(row,"proof_size_basis","canonical-element-model");
+                BenchmarkData.value(row,"timing_scope","fresh-commitment-workflow");
                 BenchmarkData.value(row,"verified",1);csv.write(row);
             }
         }

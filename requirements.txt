@@ -1,3 +1,3 @@
-# Repository test target, not a claim about the original thesis NumPy version.
-# The thesis does not record its NumPy version. Use Python 3.11+ here.
+# Repository test target; the accompanying manuscript does not prescribe a NumPy version.
+# Use Python 3.11 or newer for this artifact.
 numpy==2.3.5

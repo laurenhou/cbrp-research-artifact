@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.*;
 
-/** CBRP-DL research implementation; algorithm numbers refer to the thesis.
+/** CBRP-DL research implementation; algorithm numbers refer to the accompanying journal manuscript.
  * Interactive public-coin Schnorr OR-of-AND, not a Fiat-Shamir transform.
  */
 public final class CBRPDLFull {
@@ -25,7 +25,7 @@ public final class CBRPDLFull {
     static final SecureRandom RNG = new SecureRandom();
     static final int POINT_BYTES = 33, SCALAR_BYTES = 32;
 
-    /** Rejection sampling on ALL of Z_q, including zero (Chapter 4). */
+    /** Rejection sampling on ALL of Z_q, including zero (Section 4). */
     static BigInteger scalar() {
         BigInteger r;
         do { r = new BigInteger(Q.bitLength(), RNG); } while (r.compareTo(Q) >= 0);
@@ -351,7 +351,10 @@ public final class CBRPDLFull {
                     BenchmarkData.timing(row,"commit_ms",commitNs);BenchmarkData.timing(row,"table_check_ms",checkNs);
                     BenchmarkData.timing(row,"prove_ms",proveNs);BenchmarkData.timing(row,"challenge_ms",challengeNs);
                     BenchmarkData.timing(row,"verify_ms",verifyNs);
-                    BenchmarkData.value(row,"proof_bytes",proof.bytes());BenchmarkData.value(row,"table_entries",(long)n*b);
+                    BenchmarkData.value(row,"proof_bytes",proof.bytes());
+                    BenchmarkData.value(row,"proof_size_basis","canonical-element-model");
+                    BenchmarkData.value(row,"timing_scope","fresh-credential-workflow");
+                    BenchmarkData.value(row,"table_entries",(long)n*b);
                     BenchmarkData.value(row,"table_bytes",table.tableBytes());BenchmarkData.value(row,"verified",ok?1:0);
                     csv.write(row);
                     if(!ok) throw new IllegalStateException("verification failed");

@@ -1,5 +1,5 @@
 {
-  "description": "Random valid input pairs, fresh toy KTX table per round; functional prototype only.",
+  "description": "Random valid input pairs and a fresh toy KTX table per round. A fresh instance is used per configuration; functional prototype only.",
   "bits": [
     16,
     32,

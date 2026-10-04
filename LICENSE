@@ -7,15 +7,17 @@ file scopes and the license of the assembled Flashproofs benchmark program.
 * Flashproofs benchmark program as assembled here: GNU GPL version 3.
   Project-specific FlashproofRangeBench.java and FPSelfTest.java are offered
   under GPL-3.0-only. Upstream notices and component permissions are retained.
-* Project-specific Bulletproofs driver, selected tests, shared benchmark
-  utilities, build/run scripts, and listed configuration/instructions:
-  BSD-2-Clause, for the project-authored portions specified in LICENSE-STATUS.md.
-* Third-party BulletProofLib: its original MIT license.
+* Project-specific HashWires benchmark/test integration, Bulletproofs driver,
+  selected tests, shared benchmark utilities, build/run scripts, and listed
+  configuration/instructions: BSD-2-Clause, for the project-authored portions
+  specified in LICENSE-STATUS.md.
+* HashWires Java protocol port and third-party BulletProofLib: their applicable
+  MIT licenses and notices.
 * CBRP-DL and KTX research implementations, their research-specific tests,
   and reference material: no additional license grant is selected in this update.
 
 Full texts are provided in LICENSES/GPL-3.txt,
-LICENSES/BSD-2-Clause.txt, third_party/bulletprooflib/LICENSE, and
+LICENSES/BSD-2-Clause.txt, third_party/hashwires/LICENSE, third_party/bulletprooflib/LICENSE, and
 third_party/flashproofs/License. The GPL text is also provided at the filename
 referenced by the upstream notice: third_party/flashproofs/LICENSE-GPL.txt.
 

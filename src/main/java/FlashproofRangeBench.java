@@ -78,8 +78,12 @@ public final class FlashproofRangeBench {
                 begin=System.nanoTime();boolean ok=verifyProof(proof);long verifyNs=System.nanoTime()-begin;
                 Map<String,String> row=BenchmarkData.row("flashproofs",bits,c);
                 BenchmarkData.value(row,"K",K);BenchmarkData.value(row,"L",L);BenchmarkData.value(row,"value_proved",x);
-                BenchmarkData.timing(row,"commit_ms",commitNs);BenchmarkData.timing(row,"prove_ms",proveNs);BenchmarkData.timing(row,"verify_ms",verifyNs);
+                BenchmarkData.timing(row,"standalone_commit_ms",commitNs);
+                BenchmarkData.timing(row,"prove_ms",proveNs);
+                BenchmarkData.timing(row,"verify_ms",verifyNs);
                 BenchmarkData.value(row,"proof_bytes",pointCount(proof)*33+scalarCount(proof)*32);
+                BenchmarkData.value(row,"proof_size_basis","reflected-element-model");
+                BenchmarkData.value(row,"timing_scope","proof-workflow-with-standalone-commitment-diagnostic");
                 BenchmarkData.value(row,"verified",ok?1:0);csv.write(row);
                 if(!ok) throw new IllegalStateException("verification failed");
             }

@@ -1,0 +1,34 @@
+HashWires Java port notice
+==========================
+
+Upstream source: https://github.com/novifinancial/hashwires
+Recorded upstream snapshot: 473f726f243c8ac1329d9eccda0947f0a111311e
+Upstream license: MIT (see LICENSE in this directory).
+
+This directory contains an independent Java 17 port of the optimized ordinary
+(one-time) HashWires implementation. The port follows the protocol structure in
+upstream src/dp.rs, src/hashes.rs, src/hashwires.rs, src/serialization.rs, and
+src/shuffle.rs:
+
+* minimum dominating partitions;
+* shared hash multichains;
+* padded linear accumulation;
+* 16-byte per-MDP salts;
+* deterministic Durstenfeld-style leaf placement; and
+* a deterministic padded sparse Merkle accumulator.
+
+The port uses the JDK SHA-256 MessageDigest provider and a domain-separated
+SHA-256 counter sampler for deterministic shuffling. Its canonical Java proof
+encoding is designed for the paper's element-count accounting and is not
+claimed to be byte-for-byte interoperable with the Rust crate serialization.
+
+For the MDP boundary loop, the port follows paper Algorithm 1 literally:
+b^i is processed whenever b^i <= x, because d = ceil(log_b(x + 1)). This fixes
+the exact-power edge case caused by the strict `b^i < x` loop in the recorded
+Rust snapshot. Branch selection checks digit-wise dominance directly rather
+than relying only on numeric ordering. To match this artifact's [0, 2^bits)
+input domain, zero is represented by one significant zero digit.
+The ordinary construction's internal sparse Merkle accumulator is included.
+The Section 5.2 outer T-time Merkle wrapper and optional checksum chain are not
+implemented. External issuer authentication of the final 32-byte commitment is
+an application-layer operation and is not included in the protocol timings.

@@ -19,12 +19,20 @@ public final class BenchmarkDataSelfTest {
             List<BenchmarkData.Case> rows=BenchmarkData.read(file,64,1,2);
             if(rows.size()!=3 || !rows.get(0).w().equals(BigInteger.ONE.shiftLeft(64).subtract(BigInteger.ONE)) || rows.get(1).delta().signum()!=0)
                 throw new AssertionError("64-bit fixture precision");
+            String repeated=head+"warmup,1,64,18446744073709551614,9223372036854775809\nmeasure,1,64,18446744073709551614,9223372036854775809\nmeasure,2,64,18446744073709551614,9223372036854775809\n";
+            Files.writeString(file,repeated);
+            if(BenchmarkData.read(file,64,1,2,false).size()!=3)
+                throw new AssertionError("fixed repeated fixture rejected");
+            boolean strictRejected=false;
+            try {BenchmarkData.read(file,64,1,2);}catch(IllegalArgumentException e){strictRejected=true;}
+            if(!strictRejected)throw new AssertionError("strict duplicate fixture accepted");
+            Files.writeString(file,good);
             for(String bad:new String[]{good.replace("100,90","100,0"),good.replace("100,90","100,101"),good.replace("100,90","9223372036854775931,90"),good.replace("measure,2","measure,3")}) {
                 Files.writeString(file,bad);boolean rejected=false;
                 try {BenchmarkData.read(file,64,1,2);}catch(IllegalArgumentException e){rejected=true;}
                 if(!rejected)throw new AssertionError("malformed/duplicate fixture accepted");
             }
-            System.out.println("BENCHMARK DATA SELFTEST PASS: exact 64-bit values, phase/count/duplicate/range checks");
+            System.out.println("BENCHMARK DATA SELFTEST PASS: exact 64-bit values, strict/fixed duplicate modes, phase/count/range checks");
         } finally {Files.deleteIfExists(file);}
     }
 }

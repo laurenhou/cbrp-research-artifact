@@ -1,8 +1,17 @@
 {
-  "description": "Small functional run: three distinct measured input pairs, no warmup; not performance estimates.",
+  "description": "Small functional run covering all Java schemes: three distinct measurements, no warmup, and one radix per JVM; not a performance estimate.",
   "jobs": [
     {
       "scheme": "cbrp-dl",
+      "bits": 32,
+      "warmup": 0,
+      "iterations": 3,
+      "bases": [
+        16
+      ]
+    },
+    {
+      "scheme": "hashwires",
       "bits": 32,
       "warmup": 0,
       "iterations": 3,

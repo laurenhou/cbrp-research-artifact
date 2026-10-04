@@ -1,5 +1,5 @@
 {
-  "description": "Random valid (w,t), fresh credential per CBRP round, shifted-range baselines; not the historical fixed-threshold workload.",
+  "description": "Random valid (w,t), fresh CBRP credential or ordinary HashWires commitment per round, and shifted-range algebraic baselines. Each radix runs in a separate JVM.",
   "jobs": [
     {
       "scheme": "cbrp-dl",
@@ -10,6 +10,16 @@
         16,
         256,
         65536
+      ]
+    },
+    {
+      "scheme": "hashwires",
+      "bits": 32,
+      "warmup": 5,
+      "iterations": 20,
+      "bases": [
+        16,
+        256
       ]
     },
     {
@@ -33,6 +43,16 @@
         16,
         256,
         65536
+      ]
+    },
+    {
+      "scheme": "hashwires",
+      "bits": 64,
+      "warmup": 5,
+      "iterations": 20,
+      "bases": [
+        16,
+        256
       ]
     },
     {

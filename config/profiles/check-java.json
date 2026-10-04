@@ -1,8 +1,18 @@
 {
-  "description": "Functional coverage across 32/64 bits and bases 16/256: one warmup, three measured inputs. Excludes the expensive base 65536.",
+  "description": "Functional Java coverage across 32/64 bits and common bases 16/256; each radix runs in a separate JVM. One warmup and three measurements; excludes CBRP-DL base 65536.",
   "jobs": [
     {
       "scheme": "cbrp-dl",
+      "bits": 32,
+      "warmup": 1,
+      "iterations": 3,
+      "bases": [
+        16,
+        256
+      ]
+    },
+    {
+      "scheme": "hashwires",
       "bits": 32,
       "warmup": 1,
       "iterations": 3,
@@ -25,6 +35,16 @@
     },
     {
       "scheme": "cbrp-dl",
+      "bits": 64,
+      "warmup": 1,
+      "iterations": 3,
+      "bases": [
+        16,
+        256
+      ]
+    },
+    {
+      "scheme": "hashwires",
       "bits": 64,
       "warmup": 1,
       "iterations": 3,

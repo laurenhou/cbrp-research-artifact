@@ -47,17 +47,21 @@ These portions are licensed under [BSD-2-Clause](LICENSES/BSD-2-Clause.txt).
 This grant does not replace copyright or license notices for any incorporated
 third-party material and does not claim ownership of that material.
 
-### Java benchmark utilities and Bulletproofs integration
+### Java benchmark utilities and baseline integration
 
+- `src/main/java/research/baselines/hashwires/HashWiresRangeBench.java`
+- `tests/java/hashwires/HashWiresSelfTest.java`
+- `tests/java/common/HashBackendInfo.java`
 - `src/main/java/edu/stanford/cs/crypto/BulletproofRangeBench.java`
 - `src/main/java/research/cbrp/bench/BenchmarkData.java`
 - `tests/java/bulletproofs/BPSelfTest.java`
 - `tests/java/common/BackendInfo.java`
 - `tests/java/cbrp-dl/BenchmarkDataSelfTest.java`
 
-The Bulletproofs driver and its self-test use the MIT-licensed BulletProofLib
-source subset. Their BSD grant is for the project-specific integration, not a
-relabeling of BulletProofLib itself.
+The HashWires driver/self-test use the MIT-licensed Java protocol port described
+below. The Bulletproofs driver and its self-test use the MIT-licensed
+BulletProofLib source subset. The BSD grant is for project-specific integration,
+tests and measurement plumbing, not a relabeling of either MIT component.
 
 ### Build, input, execution, CSV reporting, and tool tests
 
@@ -76,6 +80,7 @@ relabeling of BulletProofLib itself.
 - `config/dependencies/bulletproofs.xml`
 - `config/dependencies/cbrp-dl.xml`
 - `config/dependencies/flashproofs.xml`
+- `config/dependencies/hashwires.xml`
 - `.gitattributes`
 - `.gitignore`
 - `.java-version`
@@ -87,7 +92,9 @@ relabeling of BulletProofLib itself.
 - `LICENSE-STATUS.md`
 - `THIRD_PARTY_NOTICES.md`
 - `provenance/sources.json`
+- `third_party/hashwires/NOTICE`
 - `config/profiles/check-java.json`
+- `config/profiles/hashwires-paper-fixed.json`
 - `config/profiles/random-java.json`
 - `config/profiles/random-ktx.json`
 - `config/profiles/smoke.json`
@@ -99,7 +106,18 @@ invoke separately licensed components; this does not grant a license to those
 components. In particular, licensing `run_ktx.py` does not license the imported
 KTX research implementation.
 
-## BulletProofLib and other retained sources
+## Retained and ported third-party sources
+
+`third_party/hashwires/src/main/java/org/hashwires/HashWires.java` is a
+Java 17 derivative/port of the recorded MIT-licensed HashWires Rust snapshot.
+It preserves the upstream Facebook copyright notice and adds the port author's
+copyright notice; the Java protocol file is distributed under the same MIT
+terms in `third_party/hashwires/LICENSE`. The port notice records the
+implemented ordinary one-time scope and material differences from the Rust
+crate, including the JDK SHA-256 backend, deterministic shuffle sampler, Java
+proof encoding, exclusion of the outer Section 5.2 T-time wrapper and exclusion
+of the optional checksum chain. The language port is not represented as a
+line-for-line entry in `provenance/third-party.patch`.
 
 The 26 Java source files under `third_party/bulletprooflib/` retain the
 [original MIT license](third_party/bulletprooflib/LICENSE), including the
@@ -134,11 +152,12 @@ restrict use of unprotected facts or other rights available under applicable law
 ## Source and dependency distribution
 
 This package distributes source, configuration, and instructions, not compiled
-applications, JAR dependencies, Python wheels, or a virtual environment. All
-project-specific source and build/run scripts for the Flashproofs program are
-included. The reproducible entry points are `scripts/build.py --module
-flashproofs` and `scripts/run.py --scheme flashproofs`; see the README for
-interpreter commands and environment setup.
+applications, JAR dependencies, Python wheels, or a virtual environment. All project-specific source and build/run scripts for the Java modules are
+included. HashWires is JDK-only; its reproducible entry points are
+`scripts/build.py --module hashwires` and `scripts/run.py --scheme hashwires`.
+Flashproofs uses `scripts/build.py --module flashproofs` and
+`scripts/run.py --scheme flashproofs`; see the README for interpreter commands
+and environment setup.
 
 Bouncy Castle, Guava, Cyclops React, NumPy and transitive dependencies keep their
 own licenses. The package declares dependencies in `config/dependencies/` and
@@ -152,5 +171,9 @@ offer or a certification for an arbitrary binary/dependency combination.
 
 2026-09-30: the project-specific Flashproofs integration is offered under
 GPL-3.0-only, the listed tools/instructions under BSD-2-Clause, and the existing
-third-party notices are preserved. No protocol logic or reference measurements
-are changed by these license annotations.
+third-party notices are preserved.
+
+2026-10-04: the ordinary one-time HashWires Java protocol port is added under
+MIT, with its project-specific driver, tests, build integration and instructions
+under BSD-2-Clause. No HashWires measurements are added to the historical
+reference CSV files.
